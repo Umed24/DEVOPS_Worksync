@@ -10,8 +10,7 @@ services:
       - ./backend:/app
     networks:
       - worksync-network
-    command: ["node", "app.js"]  # Ensures that the backend uses node app.js
-
+    command: ["node", "app.js"]  
   frontend:
     build: ./frontend
     ports:
@@ -22,8 +21,7 @@ services:
       - ./frontend:/app
     networks:
       - worksync-network
-    command: ["npm", "start"]  # Ensures that frontend runs with npm start
-
+    command: ["npm", "start"]  
 networks:
   worksync-network:
     driver: bridge
