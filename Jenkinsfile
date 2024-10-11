@@ -37,13 +37,21 @@ pipeline {
             }
         }
 
+        stage('Login to DockerHub') {
+            steps {
+                script {
+                    // Login to DockerHub
+                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                }
+            }
+        }
+
         stage('Push Backend Docker Image to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        def backendImage = docker.image("umed24/backend:latest")
-                        backendImage.push() // Push the backend image to DockerHub
-                    }
+                    // Push the backend Docker image to DockerHub
+                    def backendImage = docker.image("umed24/backend:latest")
+                    backendImage.push() // Push the backend image to DockerHub
                 }
             }
         }
@@ -51,10 +59,18 @@ pipeline {
         stage('Push Frontend Docker Image to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        def frontendImage = docker.image("umed24/frontend:latest")
-                        frontendImage.push() // Push the frontend image to DockerHub
-                    }
+                    // Push the frontend Docker image to DockerHub
+                    def frontendImage = docker.image("umed24/frontend:latest")
+                    frontendImage.push() // Push the frontend image to DockerHub
+                }
+            }
+        }
+
+        stage('Logout from DockerHub') {
+            steps {
+                script {
+                    // Logout from DockerHub
+                    sh 'docker logout'
                 }
             }
         }
