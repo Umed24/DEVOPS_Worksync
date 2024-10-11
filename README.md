@@ -1,6 +1,6 @@
 # Worksync 
 <br>
-To check cicd pipeline case 1
+case 1
 <br>
 
 <br>
