@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        // Define the DockerHub credentials and GitHub credentials
-        DOCKERHUB_CREDENTIALS = credentials('Dockerhub_creds') // Replace with your actual credentials ID for DockerHub
-        GITHUB_CREDENTIALS = credentials('github-creds') // Replace with your GitHub credentials ID
+        // Define DockerHub credentials
+        DOCKERHUB_USERNAME = 'umed24' // Replace with your Docker Hub username
+        DOCKERHUB_PASSWORD = 'Umedmujawar2@' // Replace with your Docker Hub password
     }
 
     stages {
@@ -13,8 +13,7 @@ pipeline {
                 script {
                     // Checkout code from the correct branch
                     git branch: 'master', // Use 'main' if your default branch is 'main'
-                        url: 'https://github.com/Umed24/DEVOPS_Worksync.git',
-                        credentialsId: GITHUB_CREDENTIALS
+                        url: 'https://github.com/Umed24/DEVOPS_Worksync.git'
                 }
             }
         }
@@ -40,9 +39,10 @@ pipeline {
         stage('Push Backend Docker Image to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                    echo "Pushing backend Docker image to DockerHub..."
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_USERNAME}:${DOCKERHUB_PASSWORD}") {
                         def backendImage = docker.image("umed24/backend:latest")
-                        backendImage.push() // Push the backend image to DockerHub
+                        backendImage.push('latest') // Push the backend image with the latest tag
                     }
                 }
             }
@@ -51,9 +51,10 @@ pipeline {
         stage('Push Frontend Docker Image to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                    echo "Pushing frontend Docker image to DockerHub..."
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_USERNAME}:${DOCKERHUB_PASSWORD}") {
                         def frontendImage = docker.image("umed24/frontend:latest")
-                        frontendImage.push() // Push the frontend image to DockerHub
+                        frontendImage.push('latest') // Push the frontend image with the latest tag
                     }
                 }
             }
