@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB_CREDENTIALS') // Use your DockerHub credentials
+        DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB_CREDENTIALS') // Make sure 'DOCKERHUB_CREDENTIALS' is set up in Jenkins
     }
 
     stages {
@@ -70,7 +70,12 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            script {
+                // Place cleanWs inside a node block
+                node {
+                    cleanWs()
+                }
+            }
         }
         failure {
             echo 'Build failed!'
