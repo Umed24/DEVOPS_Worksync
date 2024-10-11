@@ -1,54 +1,42 @@
 pipeline {
     agent any
-
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('Dockerhub_creds') // Use your Jenkins credentials ID
+        GITHUB_CREDENTIALS = credentials('github-creds')  // GitHub credentials
+        DOCKERHUB_CREDENTIALS = credentials('Dockerhub_creds')  // DockerHub credentials
+        DOCKER_IMAGE = 'umed24/worksync'  // DockerHub repository
     }
-
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/Umed24/DEVOPS_Worksync.git'
+                // Checkout the latest code from GitHub
+                git url: 'https://github.com/Umed24/DEVOPS_Worksync.git',
+                    credentialsId: GITHUB_CREDENTIALS,
+                    branch: 'main'  // Use your main branch here
             }
         }
-
-        stage('Build Docker Images') {
+        stage('Build Backend Docker Image') {
             steps {
                 script {
-                    // Build backend Docker image
-                    sh 'docker build -t your-dockerhub-username/worksync-backend ./backend'
-
-                    // Build frontend Docker image
-                    sh 'docker build -t your-dockerhub-username/worksync-frontend ./frontend'
+                    docker.build("${DOCKER_IMAGE}_backend", "-f backend/Dockerfile .")
                 }
             }
         }
-
-        stage('Push Docker Images to Docker Hub') {
+        stage('Build Frontend Docker Image') {
             steps {
                 script {
-                    // Log in to Docker Hub using Jenkins credentials
-                    sh """
-                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
-                    docker push your-dockerhub-username/worksync-backend
-                    docker push your-dockerhub-username/worksync-frontend
-                    """
+                    docker.build("${DOCKER_IMAGE}_frontend", "-f frontend/Dockerfile .")
                 }
             }
         }
-
-        stage('Deploy with Docker Compose') {
+        stage('Push to DockerHub') {
             steps {
                 script {
-                    sh 'docker-compose up -d'
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${DOCKER_IMAGE}_backend").push()
+                        docker.image("${DOCKER_IMAGE}_frontend").push()
+                    }
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
         }
     }
 }
