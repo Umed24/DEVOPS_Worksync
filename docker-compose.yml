@@ -1,27 +1,18 @@
 version: '3'
 services:
-  backend:
-    build: ./backend
+  worksync:
+    build: .
     ports:
-      - "5000:5000"
+      - "3000:3000"  # Expose frontend port
+      - "1000:1000"  # Expose backend port
     environment:
       - NODE_ENV=development
     volumes:
-      - ./backend:/app
+      - .:/app  # Mount the current directory
     networks:
       - worksync-network
-    command: ["node", "app.js"]  
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-    volumes:
-      - ./frontend:/app
-    networks:
-      - worksync-network
-    command: ["npm", "start"]  
+    command: ["sh", "-c", "node /app/backend/app.js & npm start --prefix /app/frontend"]
+
 networks:
   worksync-network:
     driver: bridge

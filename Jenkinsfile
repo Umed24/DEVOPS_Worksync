@@ -2,7 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB_CREDENTIALS') // Make sure 'DOCKERHUB_CREDENTIALS' is set up in Jenkins
+        DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB_CREDENTIALS') // Make sure 'DOCKERHUB_CREDENTIALS' is set up in Jenkins  
+        // github cred missing to be modified in whatsapp or in personal mail gpt code is there 
+        
     }
 
     stages {
