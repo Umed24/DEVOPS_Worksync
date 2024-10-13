@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds') // Ensure the 'DOCKERHUB_CREDENTIALS' is configured in Jenkins
+        // Use the correct DockerHub credential ID from your Jenkins (Dockerhub-creds)
+        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds') 
     }
 
     triggers {
@@ -31,7 +32,7 @@ pipeline {
         stage('Login to DockerHub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'Dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         bat '''
                         docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_PASSWORD%
                         '''
