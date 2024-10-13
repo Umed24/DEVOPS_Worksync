@@ -2,9 +2,11 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB_CREDENTIALS') // Make sure 'DOCKERHUB_CREDENTIALS' is set up in Jenkins  
-        // github cred missing to be modified in whatsapp or in personal mail gpt code is there 
-        
+        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds') // Ensure the 'DOCKERHUB_CREDENTIALS' is configured in Jenkins
+    }
+
+    triggers {
+        githubPush()  // Automatically triggers the pipeline when a push is made to the GitHub repo
     }
 
     stages {
@@ -17,18 +19,11 @@ pipeline {
             }
         }
 
-        stage('Build Backend Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    bat 'docker build -t "umed24/backend:latest" -f backend/Dockerfile ./backend'
-                }
-            }
-        }
-
-        stage('Build Frontend Docker Image') {
-            steps {
-                script {
-                    bat 'docker build -t "umed24/frontend:latest" -f frontend/Dockerfile ./frontend'
+                    // Build the Docker image from the Dockerfile that includes both backend and frontend
+                    bat 'docker build -t "umed24/worksync:latest" .'
                 }
             }
         }
@@ -45,18 +40,11 @@ pipeline {
             }
         }
 
-        stage('Push Backend Docker Image to DockerHub') {
+        stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    bat 'docker push umed24/backend:latest'
-                }
-            }
-        }
-
-        stage('Push Frontend Docker Image to DockerHub') {
-            steps {
-                script {
-                    bat 'docker push umed24/frontend:latest'
+                    // Push the built image to DockerHub
+                    bat 'docker push umed24/worksync:latest'
                 }
             }
         }
@@ -73,7 +61,7 @@ pipeline {
     post {
         always {
             script {
-                // Place cleanWs inside a node block
+                // Clean the workspace after the pipeline run
                 node {
                     cleanWs()
                 }
