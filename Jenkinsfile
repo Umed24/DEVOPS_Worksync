@@ -22,8 +22,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image from the Dockerfile that includes both backend and frontend
-                    bat 'docker build -t "umed24/worksync:latest" .'
+                    // Build the Docker image with the tag worksync:01
+                    bat 'docker build -t "umed24/worksync:01" .'
                 }
             }
         }
@@ -43,8 +43,8 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    // Push the built image to DockerHub
-                    bat 'docker push umed24/worksync:latest'
+                    // Push the worksync:01 image to DockerHub
+                    bat 'docker push umed24/worksync:01'
                 }
             }
         }
