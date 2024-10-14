@@ -24,9 +24,6 @@ RUN npm install
 # Copy the frontend code
 COPY frontend/ .
 
-# Increase Node.js memory limit for the build process
-ENV NODE_OPTIONS="--max-old-space-size=1024"
-
 # Build the frontend (assuming it's a React app)
 RUN npm run build
 
@@ -38,10 +35,10 @@ COPY backend/.env .env
 
 # Expose the ports for the backend and frontend
 
-# Backend
+#Backend
 EXPOSE 1000    
 
-# Frontend
+#Frontend
 EXPOSE 3000  
 
 # Start both backend and frontend
