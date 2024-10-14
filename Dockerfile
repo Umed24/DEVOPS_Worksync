@@ -14,6 +14,9 @@ COPY backend/ .
 # Set up environment variables for the backend
 ENV NODE_ENV=development
 
+# Set Node.js memory limit to 512MB
+ENV NODE_OPTIONS="--max-old-space-size=512"
+
 # Move to the frontend directory for setup
 WORKDIR /app/frontend
 
@@ -35,10 +38,10 @@ COPY backend/.env .env
 
 # Expose the ports for the backend and frontend
 
-#Backend
+# Backend
 EXPOSE 1000    
 
-#Frontend
+# Frontend
 EXPOSE 3000  
 
 # Start both backend and frontend
