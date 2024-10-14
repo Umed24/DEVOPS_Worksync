@@ -1,6 +1,6 @@
 # Worksync 
 <br>
-case 0003: updated jenkins 
+case 0003: updated memory 
 <br>
 
 <br>
