@@ -14,9 +14,6 @@ COPY backend/ .
 # Set up environment variables for the backend
 ENV NODE_ENV=development
 
-# Set Node.js memory limit to 512MB
-ENV NODE_OPTIONS="--max-old-space-size=512"
-
 # Move to the frontend directory for setup
 WORKDIR /app/frontend
 
@@ -26,6 +23,9 @@ RUN npm install
 
 # Copy the frontend code
 COPY frontend/ .
+
+# Increase Node.js memory limit for the build process
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 
 # Build the frontend (assuming it's a React app)
 RUN npm run build
