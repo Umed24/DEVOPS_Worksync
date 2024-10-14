@@ -7,7 +7,7 @@ services:
       - "1000:1000"  # Expose backend port
     environment:
       - NODE_ENV=development
-      - NODE_OPTIONS=--max-old-space-size=512  # Limit Node.js memory to 512MB
+      - NODE_OPTIONS=--max-old-space-size=2048  # Limit Node.js memory to 512MB
     volumes:
       - .:/app  # Mount the current directory
     networks:
