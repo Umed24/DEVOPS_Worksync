@@ -1,3 +1,3 @@
 provider "aws" {
-  region     = "us-east-1"  # Change the region based on your preference
+  region = "us-east-1"  # Northern Virginia
 }

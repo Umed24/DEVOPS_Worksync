@@ -1,9 +1,5 @@
-provider "aws" {
-  region = "us-east-1"  # Northern Virginia
-}
 
 data "aws_security_group" "allow_http_ssh" {
-  # Replace with your actual VPC ID
   vpc_id = "vpc-067575f1870e8da0d"
 
   filter {
