@@ -36,7 +36,7 @@ resource "aws_security_group" "new_allow_http_ssh" {
 
 # Launch the EC2 instance using the newly created security group
 resource "aws_instance" "worksync_app" {
-  ami             = "ami-00f251754c5da7f0"  # Amazon Linux 2 AMI
+  ami             = "ami-00f251754ac5da7f0"  # Amazon Linux 2 AMI
   instance_type   = var.instance_type       # Ensure this variable is defined
   key_name        = var.key_name            # Ensure this variable is defined
   security_groups = [aws_security_group.new_allow_http_ssh.name]  # Use the new security group
