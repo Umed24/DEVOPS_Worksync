@@ -54,18 +54,16 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 script {
-                    // Initialize Terraform
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_ACCESS_KEYS']]) {
-                        def awsAccessKey = AWS_ACCESS_KEYS.get('Access Key ID')
-                        def awsSecretKey = AWS_ACCESS_KEYS.get('Secret Access Key')
+                    // Set AWS credentials for Terraform
+                    def awsAccessKey = AWS_ACCESS_KEYS.accessKeyId
+                    def awsSecretKey = AWS_ACCESS_KEYS.secretAccessKey
 
-                        // Set AWS environment variables for Terraform
-                        bat """
-                        set AWS_ACCESS_KEY_ID=%awsAccessKey%
-                        set AWS_SECRET_ACCESS_KEY=%awsSecretKey%
-                        terraform init
-                        """
-                    }
+                    // Set AWS environment variables for Terraform
+                    bat """
+                    set AWS_ACCESS_KEY_ID=${awsAccessKey}
+                    set AWS_SECRET_ACCESS_KEY=${awsSecretKey}
+                    terraform init
+                    """
                 }
             }
         }
