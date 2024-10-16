@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // Use the correct DockerHub credential ID from your Jenkins
+        // Use the correct DockerHub and AWS credentials IDs from your Jenkins
         DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds')
         AWS_ACCESS_KEYS = credentials('AWS_ACCESS_KEYS')  // AWS credentials
     }
@@ -35,7 +35,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         // Login to Docker Hub
-                        bat 'echo %DOCKERHUB_PASSWORD% | docker login -u %DOCKERHUB_USER% --password-stdin'
+                        bat 'docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_PASSWORD%'
                     }
                 }
             }
