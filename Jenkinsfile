@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')  // DockerHub credentials ID in Jenkins
+        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds')  // DockerHub credentials ID in Jenkins
         AWS_ACCESS_KEYS = credentials('AWS_ACCESS_KEYS')         // AWS credentials ID in Jenkins
     }
 
