@@ -1,6 +1,6 @@
 # Worksync 
 <br>
-case 0003: updated memory 
+case 0004: checking pipeline  
 <br>
 
 <br>
