@@ -32,13 +32,12 @@ resource "aws_security_group" "allow_http_ssh" {
 }
 
 resource "aws_instance" "worksync_app" {
-  ami             = "ami-0c55b159cbfafe1f0"  # Amazon Linux 2 AMI
+  ami             = "ami-00f251754c5da7f0"  # Amazon Linux 2 AMI
   instance_type   = var.instance_type
   key_name        = var.key_name
   security_groups = [aws_security_group.allow_http_ssh.name]
 
-  user_data = file("userdata.sh")  # Run Docker installation and image pull on startup
-
+  user_data = file("userdata.sh")  
   tags = {
     Name = "worksync-app"
   }
