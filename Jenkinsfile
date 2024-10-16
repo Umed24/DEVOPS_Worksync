@@ -35,7 +35,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         // Login to Docker Hub
-                        bat 'docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_PASSWORD%'
+                        bat 'echo %DOCKERHUB_PASSWORD% | docker login -u %DOCKERHUB_USER% --password-stdin'
                     }
                 }
             }
@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     // Initialize Terraform
-                    sh 'terraform init'
+                    bat 'terraform init'
                 }
             }
         }
@@ -62,19 +62,17 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 script {
-                    // Plan Terraform changes
-                    sh 'terraform plan'
+                    // Run Terraform Plan
+                    bat 'terraform plan'
                 }
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_ACCESS_KEYS']]) {
-                    script {
-                        // Apply Terraform changes
-                        sh 'terraform apply -auto-approve'
-                    }
+                script {
+                    // Apply Terraform changes
+                    bat 'terraform apply -auto-approve'
                 }
             }
         }
@@ -92,18 +90,15 @@ pipeline {
     post {
         always {
             script {
-                // Clean the workspace after the pipeline run
+                // Clean workspace
                 cleanWs()
             }
         }
         failure {
             script {
-                // Handle failure (e.g., notify team, rollback)
+                // Custom handling for failure
                 echo 'Build failed!'
             }
-        }
-        success {
-            echo 'Build succeeded!'
         }
     }
 }
