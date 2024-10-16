@@ -1,6 +1,6 @@
 # Worksync 
 <br>
-case 0005: checking pipeline  
+case 0006:  checking terraform workflow  
 <br>
 
 <br>
