@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        // Use the correct DockerHub credential ID from your Jenkins (Dockerhub-creds)
-        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds') 
+        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds')  // DockerHub credentials ID in Jenkins
+        AWS_ACCESS_KEYS = credentials('AWS_ACCESS_KEYS')         // AWS credentials ID in Jenkins
     }
 
     triggers {
-        githubPush()  // Automatically triggers the pipeline when a push is made to the GitHub repo
+        githubPush()  // Automatically triggers the pipeline on a GitHub push
     }
 
     stages {
@@ -23,8 +23,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image with the tag worksync:01
-                    bat 'docker build -t "umed24/worksync:01" .'
+                    sh 'docker build -t umed24/worksync:01 .'  // Build Docker image
                 }
             }
         }
@@ -33,9 +32,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        bat '''
-                        docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_PASSWORD%
-                        '''
+                        sh 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD'
                     }
                 }
             }
@@ -44,8 +41,33 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    // Push the worksync:01 image to DockerHub
-                    bat 'docker push umed24/worksync:01'
+                    sh 'docker push umed24/worksync:01'
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                script {
+                    sh 'terraform init'  // Initialize Terraform
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                script {
+                    sh 'terraform plan'  // Show Terraform changes
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_ACCESS_KEYS']]) {
+                        sh 'terraform apply -auto-approve'  // Apply Terraform changes
+                    }
                 }
             }
         }
@@ -53,7 +75,7 @@ pipeline {
         stage('Logout from DockerHub') {
             steps {
                 script {
-                    bat 'docker logout'
+                    sh 'docker logout'
                 }
             }
         }
@@ -61,12 +83,7 @@ pipeline {
 
     post {
         always {
-            script {
-                // Clean the workspace after the pipeline run
-                node {
-                    cleanWs()
-                }
-            }
+            cleanWs()  // Clean workspace
         }
         failure {
             echo 'Build failed!'
