@@ -53,8 +53,11 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 script {
-                    // Initialize Terraform
-                    bat 'terraform init'
+                    // Change directory to the terraform folder
+                    dir('terraform') {
+                        // Initialize Terraform
+                        bat 'terraform init'
+                    }
                 }
             }
         }
@@ -62,8 +65,11 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 script {
-                    // Run Terraform Plan
-                    bat 'terraform plan'
+                    // Change directory to the terraform folder
+                    dir('terraform') {
+                        // Run Terraform Plan
+                        bat 'terraform plan'
+                    }
                 }
             }
         }
@@ -71,8 +77,11 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 script {
-                    // Apply Terraform changes
-                    bat 'terraform apply -auto-approve'
+                    // Change directory to the terraform folder
+                    dir('terraform') {
+                        // Apply Terraform changes
+                        bat 'terraform apply -auto-approve'
+                    }
                 }
             }
         }
