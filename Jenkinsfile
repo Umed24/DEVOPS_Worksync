@@ -2,27 +2,28 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS = credentials('dockerhub-creds')
-        AWS_CREDENTIALS = credentials('aws-creds')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')  // DockerHub credentials ID in Jenkins
+        AWS_ACCESS_KEYS = credentials('AWS_ACCESS_KEYS')         // AWS credentials ID in Jenkins
+    }
+
+    triggers {
+        githubPush()  // Automatically triggers the pipeline on a GitHub push
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                script {
+                    git branch: 'master',
+                        url: 'https://github.com/Umed24/DEVOPS_Worksync.git'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Ensure Docker is installed and available in the PATH
-                    def dockerImage = "umed24/worksync:01"
-
-                    // Build the Docker image
-                    sh """
-                    docker build -t ${dockerImage} .
-                    """
+                    sh 'docker build -t umed24/worksync:01 .'  // Build Docker image
                 }
             }
         }
@@ -30,10 +31,9 @@ pipeline {
         stage('Login to DockerHub') {
             steps {
                 script {
-                    // Login to Docker Hub
-                    sh """
-                    echo "${DOCKER_CREDENTIALS_PSW}" | docker login -u "${DOCKER_CREDENTIALS}" --password-stdin
-                    """
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        sh 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD'
+                    }
                 }
             }
         }
@@ -41,10 +41,7 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    // Push the Docker image to Docker Hub
-                    sh """
-                    docker push ${dockerImage}
-                    """
+                    sh 'docker push umed24/worksync:01'
                 }
             }
         }
@@ -52,10 +49,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 script {
-                    // Initialize Terraform
-                    sh """
-                    terraform init
-                    """
+                    sh 'terraform init'  // Initialize Terraform
                 }
             }
         }
@@ -63,10 +57,7 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 script {
-                    // Plan Terraform deployment
-                    sh """
-                    terraform plan
-                    """
+                    sh 'terraform plan'  // Show Terraform changes
                 }
             }
         }
@@ -74,10 +65,17 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 script {
-                    // Apply Terraform configuration
-                    sh """
-                    terraform apply -auto-approve
-                    """
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_ACCESS_KEYS']]) {
+                        sh 'terraform apply -auto-approve'  // Apply Terraform changes
+                    }
+                }
+            }
+        }
+
+        stage('Logout from DockerHub') {
+            steps {
+                script {
+                    sh 'docker logout'
                 }
             }
         }
@@ -85,18 +83,13 @@ pipeline {
 
     post {
         always {
-            // Logout from DockerHub
-            script {
-                sh """
-                docker logout
-                """
-            }
-            // Clean up workspace
-            cleanWs()
+            cleanWs()  // Clean workspace
         }
         failure {
-            // Actions to take on failure
             echo 'Build failed!'
+        }
+        success {
+            echo 'Build succeeded!'
         }
     }
 }
