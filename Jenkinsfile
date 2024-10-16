@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds')  // DockerHub credentials ID in Jenkins
-        AWS_ACCESS_KEYS = credentials('AWS_ACCESS_KEYS')         // AWS credentials ID in Jenkins
+        // Use the correct DockerHub credential ID from your Jenkins (Dockerhub-creds)
+        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds') 
+        AWS_ACCESS_KEYS = credentials('AWS_ACCESS_KEYS')  // AWS credentials
     }
 
     triggers {
-        githubPush()  // Automatically triggers the pipeline on a GitHub push
+        githubPush()  // Automatically triggers the pipeline when a push is made to the GitHub repo
     }
 
     stages {
@@ -23,7 +24,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t umed24/worksync:01 .'  // Build Docker image
+                    // Build the Docker image with the tag worksync:01
+                    bat 'docker build -t "umed24/worksync:01" .'
                 }
             }
         }
@@ -31,8 +33,10 @@ pipeline {
         stage('Login to DockerHub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        sh 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD'
+                    withCredentials([usernamePassword(credentialsId: 'Dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        bat '''
+                        docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_PASSWORD%
+                        '''
                     }
                 }
             }
@@ -41,7 +45,8 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    sh 'docker push umed24/worksync:01'
+                    // Push the worksync:01 image to DockerHub
+                    bat 'docker push umed24/worksync:01'
                 }
             }
         }
@@ -49,7 +54,18 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 script {
-                    sh 'terraform init'  // Initialize Terraform
+                    // Initialize Terraform
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_ACCESS_KEYS']]) {
+                        def awsAccessKey = AWS_ACCESS_KEYS.get('Access Key ID')
+                        def awsSecretKey = AWS_ACCESS_KEYS.get('Secret Access Key')
+
+                        // Set AWS environment variables for Terraform
+                        bat """
+                        set AWS_ACCESS_KEY_ID=%awsAccessKey%
+                        set AWS_SECRET_ACCESS_KEY=%awsSecretKey%
+                        terraform init
+                        """
+                    }
                 }
             }
         }
@@ -57,7 +73,8 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 script {
-                    sh 'terraform plan'  // Show Terraform changes
+                    // Show Terraform changes
+                    bat 'terraform plan'  // Using bat for Windows compatibility
                 }
             }
         }
@@ -65,9 +82,8 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_ACCESS_KEYS']]) {
-                        sh 'terraform apply -auto-approve'  // Apply Terraform changes
-                    }
+                    // Apply Terraform changes
+                    bat 'terraform apply -auto-approve'  // Using bat for Windows compatibility
                 }
             }
         }
@@ -75,7 +91,7 @@ pipeline {
         stage('Logout from DockerHub') {
             steps {
                 script {
-                    sh 'docker logout'
+                    bat 'docker logout'
                 }
             }
         }
@@ -83,7 +99,12 @@ pipeline {
 
     post {
         always {
-            cleanWs()  // Clean workspace
+            script {
+                // Clean the workspace after the pipeline run
+                node {
+                    cleanWs()
+                }
+            }
         }
         failure {
             echo 'Build failed!'
