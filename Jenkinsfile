@@ -2,21 +2,21 @@ pipeline {
     agent any
 
     environment {
-        // Use the correct DockerHub credential ID from your Jenkins (Dockerhub-creds)
-        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds') 
+        // Use the correct DockerHub credential ID from your Jenkins
+        DOCKERHUB_CREDENTIALS = credentials('Dockerhub-creds')
         AWS_ACCESS_KEYS = credentials('AWS_ACCESS_KEYS')  // AWS credentials
     }
 
     triggers {
-        githubPush()  // Automatically triggers the pipeline when a push is made to the GitHub repo
+        githubPush()  // Automatically triggers the pipeline on a push to the GitHub repo
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    git branch: 'master',
-                        url: 'https://github.com/Umed24/DEVOPS_Worksync.git'
+                    // Checkout code from the GitHub repository
+                    git branch: 'master', url: 'https://github.com/Umed24/DEVOPS_Worksync.git'
                 }
             }
         }
@@ -34,9 +34,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        bat '''
-                        docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_PASSWORD%
-                        '''
+                        // Login to Docker Hub
+                        bat 'docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_PASSWORD%'
                     }
                 }
             }
@@ -45,7 +44,7 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    // Push the worksync:01 image to DockerHub
+                    // Push the worksync:01 image to Docker Hub
                     bat 'docker push umed24/worksync:01'
                 }
             }
@@ -54,16 +53,8 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 script {
-                    // Set AWS credentials for Terraform
-                    def awsAccessKey = AWS_ACCESS_KEYS.accessKeyId
-                    def awsSecretKey = AWS_ACCESS_KEYS.secretAccessKey
-
-                    // Set AWS environment variables for Terraform
-                    bat """
-                    set AWS_ACCESS_KEY_ID=${awsAccessKey}
-                    set AWS_SECRET_ACCESS_KEY=${awsSecretKey}
-                    terraform init
-                    """
+                    // Initialize Terraform
+                    sh 'terraform init'
                 }
             }
         }
@@ -71,17 +62,19 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 script {
-                    // Show Terraform changes
-                    bat 'terraform plan'  // Using bat for Windows compatibility
+                    // Plan Terraform changes
+                    sh 'terraform plan'
                 }
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                script {
-                    // Apply Terraform changes
-                    bat 'terraform apply -auto-approve'  // Using bat for Windows compatibility
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AWS_ACCESS_KEYS']]) {
+                    script {
+                        // Apply Terraform changes
+                        sh 'terraform apply -auto-approve'
+                    }
                 }
             }
         }
@@ -89,6 +82,7 @@ pipeline {
         stage('Logout from DockerHub') {
             steps {
                 script {
+                    // Logout from Docker Hub
                     bat 'docker logout'
                 }
             }
@@ -99,13 +93,14 @@ pipeline {
         always {
             script {
                 // Clean the workspace after the pipeline run
-                node {
-                    cleanWs()
-                }
+                cleanWs()
             }
         }
         failure {
-            echo 'Build failed!'
+            script {
+                // Handle failure (e.g., notify team, rollback)
+                echo 'Build failed!'
+            }
         }
         success {
             echo 'Build succeeded!'
