@@ -1,6 +1,6 @@
 # Worksync 
 <br>
-case 0006:  checking terraform workflow  
+case 0006:  checking terraform workflow : 01  
 <br>
 
 <br>
