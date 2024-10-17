@@ -21,7 +21,7 @@ const Login = () => {
         alert("All fields are required");
       } else {
         const response = await axios.post(
-          "http://3.91.226.116:1000/api/v1/log-in",
+          "http://34.207.193.154:1000/api/v1/log-in",
           Data
         );
         setData({ username: "", password: "" });
