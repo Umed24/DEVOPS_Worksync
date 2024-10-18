@@ -47,7 +47,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetch = async () => {
       const response = await axios.get(
-        "http://34.207.193.154:1000/api/v2/get-all-tasks",
+        "http://44.203.139.127:1000/api/v2/get-all-tasks",
         { headers }
       );
       setData(response.data.data);

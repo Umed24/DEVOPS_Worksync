@@ -20,7 +20,7 @@ const Signup = () => {
         alert("All fields are required");
       } else {
         const response = await axios.post(
-          "http://34.207.193.154:1000/api/v1/sign-in",
+          "http://44.203.139.127:1000/api/v1/sign-in",
           Data
         );
         setData({ username: "", email: "", password: "" });

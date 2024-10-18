@@ -23,7 +23,7 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
     if (Data.title === "" || Data.desc === "") {
       alert("All fields are required");
     } else {
-      await axios.post("http://34.207.193.154:1000/api/v2/create-task", Data, {
+      await axios.post("http://44.203.139.127:1000/api/v2/create-task", Data, {
         headers,
       });
       setData({ title: "", desc: "" });
@@ -35,7 +35,7 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
       alert("All fields are required");
     } else {
       await axios.put(
-        `http://34.207.193.154:1000/api/v2/update-task/${UpdatedData.id}`,
+        `http://44.203.139.127:1000/api/v2/update-task/${UpdatedData.id}`,
         Data,
         {
           headers,
